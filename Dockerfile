@@ -1,6 +1,6 @@
 ###### compute node
 # runs slurmd, sshd and is able to execute jobs via mpi
-FROM qnib/terminal
+FROM qnib-terminal
 MAINTAINER "Christian Kniep <christian@qnib.org>"
 
 ##### USER
@@ -31,7 +31,7 @@ ADD yum-cache/carboniface /tmp/yum-cache/carboniface
 RUN yum install -y python-docopt /tmp/yum-cache/carboniface/python-carboniface-1.0.3-1.x86_64.rpm
 
 # graphite-web
-RUN 	yum install -y nginx python-django python-django-tagging pyparsing pycairo python-gunicorn pytz git-core
+RUN 	yum install -y nginx python-django python-whisper python-django-tagging pyparsing pycairo python-gunicorn pytz git-core
 RUN 	useradd www-data
 RUN 	mkdir -p /var/lib/graphite-web/log/webapp
 ADD     ./etc/nginx/nginx.conf /etc/nginx/nginx.conf
