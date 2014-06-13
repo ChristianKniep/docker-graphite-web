@@ -3,40 +3,17 @@
 FROM qnib/terminal
 MAINTAINER "Christian Kniep <christian@qnib.org>"
 
-##### USER
-# Set (very simple) password for root
-RUN echo "root:root"|chpasswd
-ADD root/ssh /root/.ssh
-RUN chmod 600 /root/.ssh/authorized_keys
-RUN chmod 600 /root/.ssh/id_rsa
-RUN chmod 644 /root/.ssh/id_rsa.pub
-RUN chown -R root:root /root/*
-
-### SSHD
-RUN yum install -y openssh-server
-RUN mkdir -p /var/run/sshd
-RUN sshd-keygen
-RUN sed -i -e 's/#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
-ADD root/ssh /root/.ssh/
-ADD etc/supervisord.d/sshd.ini /etc/supervisord.d/sshd.ini
-
-# We do not care about the known_hosts-file and all the security
-####### Highly unsecure... !1!! ###########
-RUN echo "        StrictHostKeyChecking no" >> /etc/ssh/ssh_config
-RUN echo "        UserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
-RUN echo "        AddressFamily inet" >> /etc/ssh/ssh_config
-
 # carboniface
 ADD yum-cache/carboniface /tmp/yum-cache/carboniface
 RUN yum install -y python-docopt /tmp/yum-cache/carboniface/python-carboniface-1.0.3-1.x86_64.rpm
 
 # graphite-web
-RUN 	yum install -y nginx python-django python-whisper python-django-tagging pyparsing pycairo python-gunicorn pytz git-core
+RUN 	yum install -y nginx python-django python-whisper python-django-tagging pyparsing pycairo python-gunicorn pytz 
 RUN 	useradd www-data
 RUN 	mkdir -p /var/lib/graphite-web/log/webapp
 ADD     ./etc/nginx/nginx.conf /etc/nginx/nginx.conf
 WORKDIR /usr/share
-RUN 	git clone https://github.com/graphite-project/graphite-web.git
+ADD     ./graphite-web.tar /usr/share/
 
 #### Config
 ## graphite web
