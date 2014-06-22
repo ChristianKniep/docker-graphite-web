@@ -6,7 +6,7 @@ GRAPHITE_ROOT = '/usr/share/graphite-web'
 STORAGE_DIR = '/var/lib/graphite-web'
 WHISPER_DIR = '/var/lib/carbon/whisper'
 
-CARBONLINK_HOSTS = ["carbon:7002"]
+CARBONLINK_HOSTS = ["carbon:7002","carbon:7012"]
 
 DATABASES = {
     'default': {
