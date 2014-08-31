@@ -12,8 +12,13 @@ RUN 	yum install -y nginx python-django python-whisper python-django-tagging pyp
 RUN 	useradd www-data
 RUN 	mkdir -p /var/lib/graphite-web/log/webapp
 ADD     ./etc/nginx/nginx.conf /etc/nginx/nginx.conf
+ADD     ./etc/nginx/conf.d/diamond.conf /etc/nginx/conf.d/
+ADD     ./etc/nginx/conf.d/graphite-web.conf /etc/nginx/conf.d/
 WORKDIR /usr/share
 ADD     ./graphite-web.tar /usr/share/
+
+## Diamond
+ADD etc/diamond/collectors/NginxCollector.conf /etc/diamond/collectors/NginxCollector.conf
 
 #### Config
 ## graphite web
