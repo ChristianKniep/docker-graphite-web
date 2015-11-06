@@ -1,0 +1,41 @@
+consul:
+    hostname: consul
+    image: qnib/consul
+    environment:
+     - DC_NAME=dc1
+     - BOOTSTRAP_CONSUL=true
+     - RUN_SERVER=true
+    ports:
+     - "8500:8500"
+    dns: 127.0.0.1
+    
+carbon:
+    hostname: carbon
+    image: qnib/carbon
+    dns: 127.0.0.1
+    environment:
+     - DC_NAME=dc1
+     - SERVICE_2003_NAME=carbon
+     - FORWARD_TO_LOGSTASH=false
+     - SKIP_PSWATCH=true
+    links:
+    - consul:consul
+    ports:
+     - 2003:2003
+
+gweb:
+    hostname: graphite-web
+    dns: 127.0.0.1
+    image: qnib/graphite-web
+    environment:
+     - DC_NAME=dc1
+     - SKIP_PSWATCH=true
+     - SERVICE_8888_NAME=graphite-web
+    ports:
+     - 80:80
+    links:
+     - consul:consul
+     - carbon:carbon
+    volumes_from:
+     - carbon
+    privileged: true

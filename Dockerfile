@@ -1,24 +1,24 @@
 ###### QNIBTerminal
-FROM qnib/nginx
+FROM qnib/u-terminal
 
-# graphite-web
-RUN dnf install -y python-django python-whisper python-django-tagging pyparsing pycairo python-gunicorn pytz 
-RUN mkdir -p /var/lib/graphite-web/log/webapp
-ADD etc/nginx/nginx.conf /etc/nginx/
-ADD etc/nginx/conf.d/diamond.conf etc/nginx/conf.d/graphite-web.conf /etc/nginx/conf.d/
-RUN curl -fsL https://github.com/graphite-project/graphite-web/archive/master.zip | bsdtar xf - -C /usr/share/ && \
-    mv /usr/share/graphite-web-master /usr/share/graphite-web
+# Postgresql
+RUN apt-get install -y sudo postgresql libpq-dev python-psycopg2
+RUN service postgresql start && \
+    sudo -u postgres psql -c "CREATE USER graphite WITH PASSWORD 'password';" && \
+    sudo -u postgres psql -c "CREATE DATABASE graphite WITH OWNER graphite;"
+ADD etc/supervisord.d/postgres.ini /etc/supervisord.d/
+## Graphite-web
+RUN apt-get install -y graphite-web
+ADD etc/graphite/local_settings.py etc/graphite/init_data.json /etc/graphite/
+RUN service postgresql start && \
+    cd /etc/graphite/ && \
+    graphite-manage syncdb --noinput
+RUN touch /var/lib/graphite/search_index 
+## Apache2
+RUN apt-get install -y apache2 libapache2-mod-wsgi
+RUN a2dissite 000-default && \
+    cp /usr/share/graphite-web/apache2-graphite.conf /etc/apache2/sites-available && \
+    a2ensite apache2-graphite && \
+    chown -R www-data: /var/lib/graphite/
+ADD etc/supervisord.d/apache2.ini /etc/supervisord.d/
 
-#### Config
-RUN mkdir -p /usr/share/graphite-web/storage/log/webapp
-## graphite web
-#ADD     ./local_settings.py /usr/share/graphite-web/webapp/graphite/
-#ADD     ./initial_data.json /usr/share/graphite-web/webapp/initial_data.json
-RUN cd /usr/share/graphite-web/webapp/ && \
-    python manage.py syncdb --noinput && \
-    chown nginx: -R /var/lib/graphite-web/
-ADD etc/supervisord.d/graphite-web.ini /etc/supervisord.d/
-
-
-# tidy up
-RUN 	rm -f /usr/share/graphite-web/webapp/initial_data.json
