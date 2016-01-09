@@ -2,7 +2,9 @@
 FROM qnib/u-terminal
 
 # Postgresql
-RUN apt-get install -y sudo postgresql libpq-dev python-psycopg2
+RUN echo "2016-01-09" && \
+    apt-get update && \
+    apt-get install -y sudo postgresql libpq-dev python-psycopg2
 RUN service postgresql start && \
     sudo -u postgres psql -c "CREATE USER graphite WITH PASSWORD 'password';" && \
     sudo -u postgres psql -c "CREATE DATABASE graphite WITH OWNER graphite;"
